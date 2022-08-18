@@ -8,7 +8,7 @@ async function action() {
     const syncVersion = core.getInput("tyk-sync-version", { required: true });
 
     const tykSyncPath = await toolCache
-      .downloadTool(`https://github.com/TykTechnologies/tyk-sync/releases/download/v1.2.1/tyk-sync_${syncVersion}_linux_amd64.tar.gz`);
+      .downloadTool(`https://github.com/TykTechnologies/tyk-sync/releases/download/v${syncVersion}/tyk-sync_${syncVersion}_linux_amd64.tar.gz`);
 
     core.debug(`downloaded tyk-sync to ${tykSyncPath}`);
 
