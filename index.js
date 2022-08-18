@@ -1,15 +1,28 @@
 const core = require('@actions/core');
-const github = require('@actions/github');
+// const github = require('@actions/github');
+const toolCache = require('@actions/tool-cache');
+const {version} = require("./dist");
 
-try {
-  // `who-to-greet` input defined in action metadata file
-  const nameToGreet = core.getInput('who-to-greet');
-  console.log(`Hello ${nameToGreet}!`);
-  const time = (new Date()).toTimeString();
-  core.setOutput("time", time);
-  // Get the JSON webhook payload for the event that triggered the workflow
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);
-} catch (error) {
-  core.setFailed(error.message);
+async function action() {
+  try {
+    const syncVersion = core.getInput("tyk-sync-version", { required: true });
+
+    const tykSyncPath = await toolCache
+      .downloadTool(`https://github.com/TykTechnologies/tyk-sync/releases/download/v1.2.1/tyk-sync_${syncVersion}_linux_amd64.tar.gz`);
+
+    core.debug(`downloaded tyk-sync to ${tykSyncPath}`);
+
+    const tykSyncExtractedDirectory = await toolCache
+      .extractTar(tykSyncPath, `tyk-sync-${version}`);
+
+    core.addPath(tykSyncExtractedDirectory);
+  } catch (error) {
+    core.setFailed(error.message);
+  }
 }
+
+if (require.main === module) {
+  action();
+}
+
+module.exports = action;
